@@ -1,257 +1,218 @@
-const token = localStorage.getItem("token")
+// Dynamic backend URL
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://amma-expense.onrender.com";
 
-if(!token){
-window.location.href="index.html"
+// Get JWT token
+const token = localStorage.getItem("token");
+if (!token) {
+  window.location.href = "index.html";
 }
 
-let chart
-let expenses=[]
-let filter="all"
+// Headers for authenticated requests
+const authHeaders = {
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${token}`,
+};
 
-function selectCategory(cat){
-document.getElementById("category").value=cat
+let chart;
+let expenses = [];
+let filter = "all";
+
+// Quick category selection
+function selectCategory(cat) {
+  document.getElementById("category").value = cat;
 }
 
-async function addExpense(){
+// Add expense
+async function addExpense() {
+  const category = document.getElementById("category").value.trim();
+  const amount = document.getElementById("amount").value.trim();
+  const note = document.getElementById("note").value.trim();
 
-const category=document.getElementById("category").value
-const amount=document.getElementById("amount").value
-const note=document.getElementById("note").value
+  if (!category || !amount) {
+    alert("Enter category and amount");
+    return;
+  }
 
-if(!category||!amount){
-alert("Enter category and amount")
-return
+  try {
+    await fetch(`${BASE_URL}/api/expenses`, {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify({ category, amount, note }),
+    });
+    loadExpenses();
+  } catch (err) {
+    console.error("Add expense error:", err);
+    alert("Failed to add expense 😅");
+  }
 }
 
-await fetch("http://localhost:5000/api/expenses",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":token
-},
-body:JSON.stringify({category,amount,note})
-})
-
-loadExpenses()
-
+// Delete expense
+async function deleteExpense(id) {
+  try {
+    await fetch(`${BASE_URL}/api/expenses/${id}`, {
+      method: "DELETE",
+      headers: authHeaders,
+    });
+    loadExpenses();
+  } catch (err) {
+    console.error("Delete error:", err);
+  }
 }
 
-async function deleteExpense(id){
-
-await fetch("http://localhost:5000/api/expenses/"+id,{
-method:"DELETE",
-headers:{Authorization:token}
-})
-
-loadExpenses()
-
+// Load all expenses
+async function loadExpenses() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/expenses`, {
+      headers: authHeaders,
+    });
+    expenses = await res.json();
+    displayExpenses();
+    updateCalendarEvents();
+  } catch (err) {
+    console.error("Load expenses error:", err);
+  }
 }
 
-async function loadExpenses(){
+// Display expenses in table + summary
+function displayExpenses() {
+  const table = document.getElementById("expenseTable");
+  table.innerHTML = "";
 
-const res=await fetch("http://localhost:5000/api/expenses",{
-headers:{Authorization:token}
-})
+  let categoryTotals = {};
+  let now = new Date();
+  let today = 0,
+    week = 0,
+    month = 0;
 
-expenses=await res.json()
+  expenses.forEach((exp) => {
+    const d = new Date(exp.date);
 
-displayExpenses()
-updateCalendarEvents() 
+    if (filter === "today" && d.toDateString() !== now.toDateString())
+      return;
+    if (filter === "week" && now - d > 7 * 86400000) return;
+    if (filter === "month" && d.getMonth() !== now.getMonth()) return;
+
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${exp.category}</td>
+                     <td>₹${exp.amount}</td>
+                     <td><button onclick="deleteExpense('${exp._id}')">❌</button></td>`;
+    table.appendChild(row);
+
+    categoryTotals[exp.category] =
+      (categoryTotals[exp.category] || 0) + Number(exp.amount);
+
+    if (d.toDateString() === now.toDateString()) today += Number(exp.amount);
+    if (now - d < 7 * 86400000) week += Number(exp.amount);
+    if (d.getMonth() === now.getMonth()) month += Number(exp.amount);
+  });
+
+  document.getElementById("todayTotal").innerText = "₹" + today;
+  document.getElementById("weekTotal").innerText = "₹" + week;
+  document.getElementById("monthTotal").innerText = "₹" + month;
+
+  updateChart(categoryTotals);
+  updateBudget(month);
 }
 
-function displayExpenses(){
-
-const table=document.getElementById("expenseTable")
-table.innerHTML=""
-
-let categoryTotals={}
-let today=0
-let week=0
-let month=0
-
-const now=new Date()
-
-expenses.forEach(exp=>{
-
-const d=new Date(exp.date)
-
-if(filter==="today" && d.toDateString()!==now.toDateString()) return
-if(filter==="week" && now-d>7*86400000) return
-if(filter==="month" && d.getMonth()!==now.getMonth()) return
-
-const row=document.createElement("tr")
-
-row.innerHTML=
-`<td>${exp.category}</td>
-<td>₹${exp.amount}</td>
-<td><button onclick="deleteExpense('${exp._id}')">❌</button></td>`
-
-table.appendChild(row)
-
-categoryTotals[exp.category]=(categoryTotals[exp.category]||0)+exp.amount
-
-if(d.toDateString()===now.toDateString()) today+=exp.amount
-if(now-d<7*86400000) week+=exp.amount
-if(d.getMonth()===now.getMonth()) month+=exp.amount
-
-})
-
-document.getElementById("todayTotal").innerText="₹"+today
-document.getElementById("weekTotal").innerText="₹"+week
-document.getElementById("monthTotal").innerText="₹"+month
-
-updateChart(categoryTotals)
-updateBudget(month)
-
+// Filter expenses by search
+function filterExpenses() {
+  const text = document.getElementById("searchInput").value.toLowerCase();
+  filter = "all"; // Reset filter
+  const filtered = expenses.filter((e) =>
+    e.category.toLowerCase().includes(text)
+  );
+  displayExpenses(filtered);
 }
 
-function filterExpenses(){
-
-const text=document.getElementById("searchInput").value.toLowerCase()
-
-expenses=expenses.filter(e=>e.category.toLowerCase().includes(text))
-
-displayExpenses()
-
+// Set summary filter
+function setFilter(f) {
+  filter = f;
+  displayExpenses();
 }
 
-function setFilter(f){
-filter=f
-displayExpenses()
+// Chart
+function updateChart(data) {
+  const ctx = document.getElementById("expenseChart");
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: Object.keys(data),
+      datasets: [{ data: Object.values(data) }],
+    },
+  });
 }
 
-function updateChart(data){
-
-const ctx=document.getElementById("expenseChart")
-
-if(chart) chart.destroy()
-
-chart=new Chart(ctx,{
-type:"pie",
-data:{
-labels:Object.keys(data),
-datasets:[{data:Object.values(data)}]
-}
-})
-
+/* Budget */
+function setBudget() {
+  const budget = document.getElementById("budgetInput").value;
+  localStorage.setItem("budget", budget);
+  updateBudget(0);
 }
 
-/* BUDGET */
-
-function setBudget(){
-
-const budget=document.getElementById("budgetInput").value
-localStorage.setItem("budget",budget)
-
+function updateBudget(monthSpent) {
+  const budget = Number(localStorage.getItem("budget"));
+  if (!budget) return;
+  const remaining = budget - monthSpent;
+  const status = document.getElementById("budgetStatus");
+  status.innerHTML =
+    remaining < 0 ? "⚠ Budget exceeded!" : "Remaining ₹" + remaining;
 }
 
-function updateBudget(monthSpent){
+/* PDF Report */
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFont("Helvetica");
+  doc.setFontSize(18);
+  doc.text("Expense Report", 20, 20);
+  doc.setFontSize(12);
 
-const budget=localStorage.getItem("budget")
+  let y = 40;
+  expenses.forEach((exp) => {
+    doc.text(`${exp.category} - ₹${exp.amount}`, 20, y);
+    y += 10;
+  });
 
-if(!budget) return
-
-const remaining=budget-monthSpent
-
-const status=document.getElementById("budgetStatus")
-
-if(remaining<0){
-
-status.innerHTML="⚠ Budget exceeded!"
-
-}else{
-
-status.innerHTML="Remaining ₹"+remaining
-
+  doc.save("expenses.pdf");
 }
 
+/* Logout */
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "index.html";
 }
 
-/* PDF */
-
-async function downloadPDF(){
-
-const { jsPDF } = window.jspdf
-const doc = new jsPDF()
-
-doc.setFont("Helvetica")
-doc.setFontSize(18)
-
-doc.text("Expense Report",20,20)
-
-doc.setFontSize(12)
-
-let y = 40
-
-expenses.forEach(exp => {
-
-const category = String(exp.category)
-const amount = Number(exp.amount)
-
-doc.text(category + " - Rs. " + amount,20,y)
-
-y += 10
-
-})
-
-doc.save("expenses.pdf")
-
+/* Calendar */
+let calendar;
+function loadCalendar() {
+  const calendarEl = document.getElementById("calendar");
+  calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: "dayGridMonth",
+    height: 500,
+  });
+  calendar.render();
 }
 
+function updateCalendarEvents() {
+  const dailyTotals = {};
+  expenses.forEach((exp) => {
+    const date = exp.date.split("T")[0];
+    dailyTotals[date] = (dailyTotals[date] || 0) + Number(exp.amount);
+  });
 
-/*logout*/
+  const events = Object.keys(dailyTotals).map((date) => ({
+    title: "₹" + dailyTotals[date],
+    start: date,
+  }));
 
-function logout(){
-
-localStorage.removeItem("token")
-window.location.href="index.html"
-
+  calendar.removeAllEvents();
+  calendar.addEventSource(events);
 }
 
-
-let calendar
-
-function loadCalendar(){
-
-const calendarEl=document.getElementById("calendar")
-
-calendar=new FullCalendar.Calendar(calendarEl,{
-initialView:"dayGridMonth",
-height:500
-})
-
-calendar.render()
-
-}
-
-function updateCalendarEvents(){
-
-let dailyTotals={}
-
-expenses.forEach(exp=>{
-
-const date=exp.date.split("T")[0]
-
-dailyTotals[date]=(dailyTotals[date]||0)+exp.amount
-
-})
-
-let events=[]
-
-Object.keys(dailyTotals).forEach(date=>{
-
-events.push({
-title:"₹"+dailyTotals[date],
-start:date
-})
-
-})
-
-calendar.removeAllEvents()
-calendar.addEventSource(events)
-
-}
-
-
-loadExpenses()
-loadCalendar()
+/* Initialize */
+loadExpenses();
+loadCalendar();
