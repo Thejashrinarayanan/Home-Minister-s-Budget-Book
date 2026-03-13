@@ -208,4 +208,35 @@ box-shadow:0 2px 6px rgba(0,0,0,0.08);
 background:white;
 padding:10px;
 border-radius:10px;
+
 }
+
+
+
+/* Toast Notification */
+.toast {
+  visibility: hidden;
+  min-width: 220px;
+  background-color: #4caf50;
+  color: white;
+  text-align: center;
+  border-radius: 5px;
+  padding: 10px;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: visibility 0s, opacity 0.3s linear;
+  opacity: 0;
+}
+
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+
+
