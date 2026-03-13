@@ -17,15 +17,15 @@ let chart;
 let expenses = [];
 let filter = "all";
 
-// Quick category selection
+/* ========================= Quick category ========================= */
 function selectCategory(cat) {
   document.getElementById("category").value = cat;
 }
 
-// Add expense
+/* ========================= Add expense ========================= */
 async function addExpense() {
   const category = document.getElementById("category").value.trim();
-  const amount = document.getElementById("amount").value.trim();
+  const amount = Number(document.getElementById("amount").value.trim());
   const note = document.getElementById("note").value.trim();
 
   if (!category || !amount) {
@@ -34,32 +34,45 @@ async function addExpense() {
   }
 
   try {
-    await fetch(`${BASE_URL}/api/expenses`, {
+    const res = await fetch(`${BASE_URL}/api/expenses`, {
       method: "POST",
       headers: authHeaders,
       body: JSON.stringify({ category, amount, note }),
     });
-    loadExpenses();
+
+    const data = await res.json();
+
+    if (res.ok) {
+      // Clear inputs
+      document.getElementById("category").value = "";
+      document.getElementById("amount").value = "";
+      document.getElementById("note").value = "";
+
+      // Reload expenses
+      await loadExpenses();
+    } else {
+      alert(data.message || "Failed to add expense 😅");
+    }
   } catch (err) {
     console.error("Add expense error:", err);
     alert("Failed to add expense 😅");
   }
 }
 
-// Delete expense
+/* ========================= Delete expense ========================= */
 async function deleteExpense(id) {
   try {
-    await fetch(`${BASE_URL}/api/expenses/${id}`, {
+    const res = await fetch(`${BASE_URL}/api/expenses/${id}`, {
       method: "DELETE",
       headers: authHeaders,
     });
-    loadExpenses();
+    if (res.ok) loadExpenses();
   } catch (err) {
     console.error("Delete error:", err);
   }
 }
 
-// Load all expenses
+/* ========================= Load all expenses ========================= */
 async function loadExpenses() {
   try {
     const res = await fetch(`${BASE_URL}/api/expenses`, {
@@ -73,8 +86,8 @@ async function loadExpenses() {
   }
 }
 
-// Display expenses in table + summary
-function displayExpenses() {
+/* ========================= Display expenses ========================= */
+function displayExpenses(expArr = expenses) {
   const table = document.getElementById("expenseTable");
   table.innerHTML = "";
 
@@ -84,11 +97,10 @@ function displayExpenses() {
     week = 0,
     month = 0;
 
-  expenses.forEach((exp) => {
+  expArr.forEach((exp) => {
     const d = new Date(exp.date);
 
-    if (filter === "today" && d.toDateString() !== now.toDateString())
-      return;
+    if (filter === "today" && d.toDateString() !== now.toDateString()) return;
     if (filter === "week" && now - d > 7 * 86400000) return;
     if (filter === "month" && d.getMonth() !== now.getMonth()) return;
 
@@ -114,23 +126,21 @@ function displayExpenses() {
   updateBudget(month);
 }
 
-// Filter expenses by search
+/* ========================= Filter expenses ========================= */
 function filterExpenses() {
   const text = document.getElementById("searchInput").value.toLowerCase();
-  filter = "all"; // Reset filter
   const filtered = expenses.filter((e) =>
     e.category.toLowerCase().includes(text)
   );
   displayExpenses(filtered);
 }
 
-// Set summary filter
 function setFilter(f) {
   filter = f;
   displayExpenses();
 }
 
-// Chart
+/* ========================= Chart ========================= */
 function updateChart(data) {
   const ctx = document.getElementById("expenseChart");
   if (chart) chart.destroy();
@@ -143,7 +153,7 @@ function updateChart(data) {
   });
 }
 
-/* Budget */
+/* ========================= Budget ========================= */
 function setBudget() {
   const budget = document.getElementById("budgetInput").value;
   localStorage.setItem("budget", budget);
@@ -159,7 +169,7 @@ function updateBudget(monthSpent) {
     remaining < 0 ? "⚠ Budget exceeded!" : "Remaining ₹" + remaining;
 }
 
-/* PDF Report */
+/* ========================= PDF Report ========================= */
 async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -177,13 +187,13 @@ async function downloadPDF() {
   doc.save("expenses.pdf");
 }
 
-/* Logout */
+/* ========================= Logout ========================= */
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "index.html";
 }
 
-/* Calendar */
+/* ========================= Calendar ========================= */
 let calendar;
 function loadCalendar() {
   const calendarEl = document.getElementById("calendar");
@@ -195,6 +205,8 @@ function loadCalendar() {
 }
 
 function updateCalendarEvents() {
+  if (!calendar) return;
+
   const dailyTotals = {};
   expenses.forEach((exp) => {
     const date = exp.date.split("T")[0];
@@ -210,9 +222,8 @@ function updateCalendarEvents() {
   calendar.addEventSource(events);
 }
 
-/* Initialize */
-loadExpenses();
-loadCalendar();
-
-
-
+/* ========================= Initialize ========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  loadExpenses();
+  loadCalendar();
+});
