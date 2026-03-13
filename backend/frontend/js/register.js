@@ -1,5 +1,5 @@
-// Dynamic backend URL
-const BASE_URL ="";
+// Backend URL for Render
+const BASE_URL = "https://home-minister-s-budget-book.onrender.com";
 
 async function register() {
   const name = document.getElementById("name").value.trim();
@@ -40,5 +40,3 @@ document.addEventListener("DOMContentLoaded", () => {
   const registerBtn = document.querySelector("button");
   if (registerBtn) registerBtn.addEventListener("click", register);
 });
-
-
