@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,97 +17,120 @@
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </head>
+
 <body>
 
-<div class="overlay">
+  <div class="overlay">
 
-  <div class="navbar">
-    <h2>🌸🏡 Home Minister's Budget Book 🌸</h2>
-    <button class="logoutBtn" onclick="logout()">🚪 Logout</button>
-  </div>
-
-  <div class="dashboard">
-
-    <h1>My Expenses 💖</h1>
-    <h3>💼 Every great home has a great budget planner</h3>
-
-    <!-- Budget -->
-    <div class="budgetBox">
-      <h3>Monthly Budget</h3>
-      <input type="number" id="budgetInput" placeholder="Enter monthly budget">
-      <button onclick="setBudget()">💰 Set Budget</button>
-      <p id="budgetStatus"></p>
+    <!-- Navbar -->
+    <div class="navbar">
+      <h2>🌸🏡 Home Minister's Budget Book 🌸</h2>
+      <button class="logoutBtn" onclick="logout()">🚪 Logout</button>
     </div>
 
-    <!-- Summary -->
-    <div class="summary">
-      <div class="card"><h3>Today</h3><p id="todayTotal">₹0</p></div>
-      <div class="card"><h3>This Week</h3><p id="weekTotal">₹0</p></div>
-      <div class="card"><h3>This Month</h3><p id="monthTotal">₹0</p></div>
-    </div>
+    <div class="dashboard">
 
-    <!-- Search -->
-    <div class="searchBox">
-      <input type="text" id="searchInput" placeholder="🔎 Search category..." onkeyup="filterExpenses()">
-    </div>
+      <h1>My Expenses 💖</h1>
+      <h3>💼 Every great home has a great budget planner</h3>
 
-    <!-- Filters -->
-    <div class="filters">
-      <button onclick="setFilter('today')">Today</button>
-      <button onclick="setFilter('week')">This Week</button>
-      <button onclick="setFilter('month')">This Month</button>
-      <button onclick="setFilter('all')">All</button>
-    </div>
+      <!-- Budget Section -->
+      <div class="budgetBox">
+        <h3>Monthly Budget</h3>
+        <input type="number" id="budgetInput" placeholder="Enter monthly budget">
+        <button onclick="setBudget()">💰 Set Budget</button>
+        <p id="budgetStatus"></p>
+      </div>
 
-    <!-- Quick Categories -->
-    <h2>Quick Categories</h2>
-    <div class="quick">
-      <button onclick="selectCategory('Milk')">🥛 Milk</button>
-      <button onclick="selectCategory('Vegetables')">🥦 Vegetables</button>
-      <button onclick="selectCategory('Groceries')">🛒 Groceries</button>
-      <button onclick="selectCategory('Transport')">🚕 Transport</button>
-      <button onclick="selectCategory('Clothes')">👗 Clothes</button>
-      <button onclick="selectCategory('Medicine')">💊 Medicine</button>
-    </div>
+      <!-- Summary Cards -->
+      <div class="summary">
+        <div class="card">
+          <h3>Today</h3>
+          <p id="todayTotal">₹0</p>
+        </div>
+        <div class="card">
+          <h3>This Week</h3>
+          <p id="weekTotal">₹0</p>
+        </div>
+        <div class="card">
+          <h3>This Month</h3>
+          <p id="monthTotal">₹0</p>
+        </div>
+      </div>
 
-    <!-- Add Expense -->
-    <h2>Add Expense</h2>
-    <div class="form">
-      <input type="text" id="category" placeholder="Category">
-      <input type="number" id="amount" placeholder="Amount">
-      <input type="text" id="note" placeholder="Note">
-      <button onclick="addExpense()">➕ Add Expense</button>
-    </div>
+      <!-- Search -->
+      <div class="searchBox">
+        <input type="text" id="searchInput" placeholder="🔎 Search category..." onkeyup="filterExpenses()">
+      </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+      <!-- Filters -->
+      <div class="filters">
+        <button onclick="setFilter('today')">Today</button>
+        <button onclick="setFilter('week')">This Week</button>
+        <button onclick="setFilter('month')">This Month</button>
+        <button onclick="setFilter('all')">All</button>
+      </div>
 
-    <!-- Chart -->
-    <h2>Monthly Spending 📊</h2>
-    <div class="chartBox"><canvas id="expenseChart"></canvas></div>
+      <!-- Quick Categories -->
+      <h2>Quick Categories</h2>
+      <div class="quick">
+        <button onclick="selectCategory('Milk')">🥛 Milk</button>
+        <button onclick="selectCategory('Vegetables')">🥦 Vegetables</button>
+        <button onclick="selectCategory('Groceries')">🛒 Groceries</button>
+        <button onclick="selectCategory('Transport')">🚕 Transport</button>
+        <button onclick="selectCategory('Clothes')">👗 Clothes</button>
+        <button onclick="selectCategory('Medicine')">💊 Medicine</button>
+      </div>
 
-    <!-- Reports -->
-    <h2>Reports</h2>
-    <div class="reportBox">
-      <button class="reportBtn" onclick="downloadPDF()">📄 Download PDF Report</button>
-    </div>
+      <!-- Add Expense -->
+      <h2>Add Expense</h2>
+      <div class="form">
+        <input type="text" id="category" placeholder="Category">
+        <input type="number" id="amount" placeholder="Amount">
+        <input type="text" id="note" placeholder="Note">
+        <button onclick="addExpense()">➕ Add Expense</button>
+      </div>
 
-    <!-- Table -->
-    <h2>Expense History</h2>
-    <table>
-      <thead>
-        <tr><th>Category</th><th>Amount</th><th>Delete</th></tr>
-      </thead>
-      <tbody id="expenseTable"></tbody>
-    </table>
+      <!-- Toast Notification -->
+      <div id="toast" class="toast">Expense added successfully ✅</div>
 
-    <!-- Calendar -->
-    <h2>📅 Monthly Expense Calendar</h2>
-    <div class="calendarBox"><div id="calendar"></div></div>
+      <!-- Chart -->
+      <h2>Monthly Spending 📊</h2>
+      <div class="chartBox">
+        <canvas id="expenseChart"></canvas>
+      </div>
 
-  </div>
-</div>
+      <!-- Reports -->
+      <h2>Reports</h2>
+      <div class="reportBox">
+        <button class="reportBtn" onclick="downloadPDF()">📄 Download PDF Report</button>
+      </div>
 
-<script src="js/dashboard.js"></script>
+      <!-- Expense Table -->
+      <h2>Expense History</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTable"></tbody>
+      </table>
+
+      <!-- Calendar -->
+      <h2>📅 Monthly Expense Calendar</h2>
+      <div class="calendarBox">
+        <div id="calendar"></div>
+      </div>
+
+    </div> <!-- End dashboard -->
+
+  </div> <!-- End overlay -->
+
+  <!-- External JS -->
+  <script src="js/dashboard.js"></script>
+
 </body>
+
 </html>
