@@ -7,6 +7,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 
+require("dotenv").config();
+
 dotenv.config();
 
 // Connect Database
@@ -39,4 +41,5 @@ if (!PORT) {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 
