@@ -1,6 +1,7 @@
-// Backend URL (Render)
+// Set the backend URL for production (Render) 
 const BASE_URL = "https://home-minister-s-budget-book.onrender.com";
 
+// Login function
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -14,25 +15,26 @@ async function login() {
     const res = await fetch(`${BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
     const data = await res.json();
 
     if (res.ok && data.token) {
-      // ✅ Store token correctly (plain string)
       localStorage.setItem("token", data.token);
+      // Redirect to dashboard
       window.location.href = "dashboard.html";
     } else {
       alert(data.message || "Login failed 😢");
     }
-  } catch (err) {
-    console.error("Login error:", err);
+  } catch (error) {
+    console.error("Login error:", error);
     alert("Something went wrong! Try again later 😅");
   }
 }
 
-// Attach event listener
+// Attach login to button by ID
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("loginBtn").addEventListener("click", login);
+  const loginBtn = document.getElementById("loginBtn");
+  if (loginBtn) loginBtn.addEventListener("click", login);
 });
