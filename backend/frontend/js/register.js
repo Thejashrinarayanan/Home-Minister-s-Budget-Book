@@ -1,8 +1,5 @@
 // Dynamic backend URL
-const BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:10000"
-    : "https://amma-expense.onrender.com";
+const BASE_URL ="";
 
 async function register() {
   const name = document.getElementById("name").value.trim();
@@ -43,4 +40,5 @@ document.addEventListener("DOMContentLoaded", () => {
   const registerBtn = document.querySelector("button");
   if (registerBtn) registerBtn.addEventListener("click", register);
 });
+
 
