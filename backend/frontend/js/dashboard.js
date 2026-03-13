@@ -1,5 +1,5 @@
 // Dynamic backend URL
-const BASE_URL ="";
+const BASE_URL = "https://home-minister-s-budget-book.onrender.com";
 
 // Get JWT token
 const token = localStorage.getItem("token");
@@ -213,5 +213,6 @@ function updateCalendarEvents() {
 /* Initialize */
 loadExpenses();
 loadCalendar();
+
 
 
