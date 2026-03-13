@@ -23,11 +23,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 
 // Serve frontend (your path is correct)
-app.use(express.static(path.join(__dirname, "../frontend")));
+app.use(express.static(path.join(__dirname, "frontend")));
 
 // Default route -> open login page
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "frontend/index.html"));
 });
 
 // Start Server using Render's port
@@ -39,3 +39,4 @@ if (!PORT) {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
