@@ -57,7 +57,7 @@ router.post("/login", async (req,res)=>{
 
     const token = jwt.sign(
       {id:user._id},
-      "secretkey",
+        process.env.JWT_SECRET,
       {expiresIn:"1d"}
     );
 
@@ -74,5 +74,6 @@ router.post("/login", async (req,res)=>{
     res.status(500).json(error);
   }
 });
+
 
 module.exports = router;
