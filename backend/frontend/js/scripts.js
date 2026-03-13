@@ -1,5 +1,5 @@
 // Set the backend URL for production (Render)
-const BASE_URL = "https://home-minister-s-budget-book.onrender.com/
+const BASE_URL = "https://home-minister-s-budget-book.onrender.com/"
 
 // Login function
 async function login() {
