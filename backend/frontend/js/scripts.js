@@ -1,6 +1,7 @@
-// Backend URL on Render
+// Backend URL
 const BASE_URL = "https://home-minister-s-budget-book.onrender.com";
 
+// Login function
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -20,8 +21,9 @@ async function login() {
     const data = await res.json();
 
     if (res.ok && data.token) {
-      // Store token as plain string
+      // Store token as string in localStorage
       localStorage.setItem("token", data.token);
+      // Redirect to dashboard
       window.location.href = "dashboard.html";
     } else {
       alert(data.message || "Login failed 😢");
@@ -32,7 +34,8 @@ async function login() {
   }
 }
 
-// Attach button listener
+// Attach event listener after DOM loads
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("loginBtn").addEventListener("click", login);
+  const loginBtn = document.getElementById("loginBtn");
+  if (loginBtn) loginBtn.addEventListener("click", login);
 });
