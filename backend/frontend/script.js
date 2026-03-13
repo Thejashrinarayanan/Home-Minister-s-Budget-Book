@@ -1,5 +1,5 @@
-// Set the backend URL depending on environment
-const BASE_URL = "";
+// Set the backend URL for production (Render)
+const BASE_URL = "https://home-minister-s-budget-book.onrender.com/
 
 // Login function
 async function login() {
@@ -37,5 +37,3 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.querySelector("button[onclick='login()']");
   if (loginBtn) loginBtn.addEventListener("click", login);
 });
-
-
