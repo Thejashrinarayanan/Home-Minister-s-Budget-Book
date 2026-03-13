@@ -1,7 +1,7 @@
 // Set the backend URL depending on environment
 const BASE_URL =
   window.location.hostname === "localhost"
-    ? "http://localhost:5000"
+    ? "http://localhost:10000"
     : "https://amma-expense.onrender.com";
 
 // Login function
@@ -40,3 +40,4 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.querySelector("button[onclick='login()']");
   if (loginBtn) loginBtn.addEventListener("click", login);
 });
+
