@@ -17,19 +17,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend (React build)
-app.use(express.static(path.join(__dirname, "../frontend/build"))); // make sure to run 'npm run build' in frontend
+// Serve frontend (React build inside backend/frontend)
+app.use(express.static(path.join(__dirname, "frontend/build")));
 
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 
-// Catch-all for React routing
+// Catch-all route for React routing
 app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
+  res.sendFile(path.join(__dirname, "frontend/build/index.html"));
 });
 
-// Use the port provided by Render
+// Start server using Render’s port
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
