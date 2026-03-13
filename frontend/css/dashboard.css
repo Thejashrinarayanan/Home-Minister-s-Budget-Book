@@ -1,0 +1,211 @@
+body{
+margin:0;
+font-family:Segoe UI, Arial, sans-serif;
+background:#ffffff;
+}
+
+/* NAVBAR */
+
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 40px;
+background:#ffb6c1;
+color:#7a0033;
+}
+
+.navbar button{
+background:#ff4d88;
+border:none;
+padding:8px 15px;
+border-radius:6px;
+color:white;
+cursor:pointer;
+}
+
+/* DASHBOARD CONTAINER */
+
+.dashboard{
+max-width:900px;
+margin:auto;
+padding:20px;
+}
+
+.dashboard h1{
+color:#cc0066;
+}
+
+.dashboard h3{
+color:#555;
+margin-bottom:20px;
+}
+
+/* PINK SECTION BOX */
+
+.budgetBox,
+.summary,
+.searchBox,
+.filters,
+.quick,
+.form,
+.chartBox,
+table,
+.reportBox{
+background:#ffe6ee;
+padding:18px;
+border-radius:12px;
+margin-bottom:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* SUMMARY CARDS */
+
+.summary{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.card{
+flex:1;
+background:#ffd6e6;
+padding:15px;
+border-radius:10px;
+text-align:center;
+}
+
+/* SEARCH */
+
+.searchBox input{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid #ffc0cb;
+}
+
+/* FILTER BUTTONS */
+
+.filters button{
+margin:5px;
+padding:7px 14px;
+border:none;
+border-radius:6px;
+background:#ff80aa;
+color:white;
+cursor:pointer;
+}
+
+/* QUICK CATEGORY */
+
+.quick button{
+margin:5px;
+padding:8px 14px;
+border:none;
+border-radius:8px;
+background:#ff6699;
+color:white;
+cursor:pointer;
+}
+
+/* FORM */
+
+.form input{
+display:block;
+width:100%;
+margin:7px 0;
+padding:9px;
+border-radius:6px;
+border:1px solid #ffc0cb;
+}
+
+.form button{
+background:#ff4d88;
+border:none;
+padding:10px;
+border-radius:6px;
+color:white;
+width:100%;
+cursor:pointer;
+}
+
+/* CHART SIZE */
+
+.chartBox{
+width:320px;
+margin:auto;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#ff99bb;
+padding:10px;
+}
+
+td{
+padding:10px;
+text-align:center;
+}
+
+td button{
+background:#ff99bb;
+border:none;
+padding:5px 10px;
+border-radius:6px;
+color:white;
+cursor:pointer;
+}
+
+/* REPORT BUTTON */
+
+button{
+cursor:pointer;
+}
+
+.reportBtn{
+background:#ff4d88;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+.summary{
+flex-direction:column;
+}
+
+.chartBox{
+width:250px;
+}
+
+.navbar{
+flex-direction:column;
+gap:10px;
+}
+
+}
+/* CALENDAR SECTION */
+
+.calendarBox{
+background:#ffe6ee;
+padding:18px;
+border-radius:12px;
+margin-bottom:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+#calendar{
+background:white;
+padding:10px;
+border-radius:10px;
+}
