@@ -1,24 +1,45 @@
-async function register(){
+// Dynamic backend URL
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://amma-expense.onrender.com";
 
-const name=document.getElementById("name").value
-const email=document.getElementById("email").value
-const password=document.getElementById("password").value
+async function register() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-const res=await fetch("http://localhost:5000/api/auth/register",{
+  if (!name || !email || !password) {
+    alert("Please fill all fields 😊");
+    return;
+  }
 
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
+  try {
+    const res = await fetch(`${BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
 
-body:JSON.stringify({name,email,password})
+    const data = await res.json();
 
-})
-
-const data=await res.json()
-
-alert(data.message)
-
-window.location.href="index.html"
-
+    if (res.ok && data.token) {
+      // Save token to localStorage
+      localStorage.setItem("token", data.token);
+      alert("🎉 Registration successful! Welcome 💖");
+      // Redirect to dashboard
+      window.location.href = "dashboard.html";
+    } else {
+      alert(data.message || "Registration failed 😢");
+    }
+  } catch (error) {
+    console.error("Registration error:", error);
+    alert("Something went wrong! Try again later 😅");
+  }
 }
+
+// Attach function to button
+document.addEventListener("DOMContentLoaded", () => {
+  const registerBtn = document.querySelector("button");
+  if (registerBtn) registerBtn.addEventListener("click", register);
+});
