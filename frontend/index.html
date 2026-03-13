@@ -1,78 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
-<title>🌸🏡 Home Minister's Budget Book 🌸</title>
-
-<link rel="stylesheet" href="css/login.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌸🏡 Home Minister's Budget Book 🌸</title>
+  <link rel="stylesheet" href="css/login.css">
 </head>
 
 <body>
 
-<div class="overlay">
+  <div class="overlay">
 
-<div class="login-card">
+    <div class="login-card">
 
-<h1>🌸🏡 Home Minister's Budget Book 🌸</h1>
+      <h1>🌸🏡 Home Minister's Budget Book 🌸</h1>
 
-<p class="welcome">Track your daily expenses with love 💖</p>
+      <p class="welcome">Track your daily expenses with love 💖</p>
 
-<h2>Login</h2>
+      <h2>Login</h2>
 
-<input type="email" id="email" placeholder="📧 Enter Email">
+      <input type="email" id="email" placeholder="📧 Enter Email">
+      <input type="password" id="password" placeholder="🔒 Enter Password">
 
-<input type="password" id="password" placeholder="🔒 Enter Password">
+      <button id="loginBtn">✨ Login</button>
 
-<button onclick="login()">✨ Login</button>
+      <p class="register-text">New here?</p>
+      <a class="register-link" href="register.html">🌷 Register Here</a>
 
-<p class="register-text">New here?</p>
+    </div>
 
-<a class="register-link" href="register.html">🌷 Register Here</a>
+  </div>
 
-</div>
-
-</div>
-
-<script>
-
-async function login(){
-
-const email=document.getElementById("email").value
-const password=document.getElementById("password").value
-
-if(email==="" || password===""){
-alert("Please enter email and password 😊")
-return
-}
-
-const res = await fetch("https://amma-expense.onrender.com/api/auth/login", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ email, password })
-});
-
-const data=await res.json()
-
-if(data.token){
-
-localStorage.setItem("token",data.token)
-
-window.location.href="dashboard.html"
-
-}else{
-
-alert(data.message)
-
-}
-
-}
-
-</script>
+  <!-- External JS -->
+  <script src="js/scripts.js"></script>
 
 </body>
-
 </html>
