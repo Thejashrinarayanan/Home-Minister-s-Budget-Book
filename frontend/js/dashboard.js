@@ -1,7 +1,7 @@
 // Dynamic backend URL
 const BASE_URL =
   window.location.hostname === "localhost"
-    ? "http://localhost:5000"
+    ? "http://localhost:10000"
     : "https://amma-expense.onrender.com";
 
 // Get JWT token
@@ -216,3 +216,4 @@ function updateCalendarEvents() {
 /* Initialize */
 loadExpenses();
 loadCalendar();
+
