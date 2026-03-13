@@ -9,8 +9,6 @@ const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 
 dotenv.config();
-
-// Connect to MongoDB
 connectDB();
 
 const app = express();
@@ -19,22 +17,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, "../frontend")));
+// Serve frontend (React build)
+app.use(express.static(path.join(__dirname, "../frontend/build"))); // make sure to run 'npm run build' in frontend
 
-// API Routes
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 
-// Catch-all route: for any frontend route not starting with /api
+// Catch-all for React routing
 app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
 });
 
-// Start Server
-// Start Server
-const PORT = process.env.PORT; // remove fallback 5000 for Render
+// Use the port provided by Render
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
