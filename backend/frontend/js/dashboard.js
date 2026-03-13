@@ -1,13 +1,12 @@
-// Dynamic backend URL
+// Backend URL
 const BASE_URL = "https://home-minister-s-budget-book.onrender.com";
 
-// Get JWT token
+// Check token
 const token = localStorage.getItem("token");
 if (!token) {
-  window.location.href = "index.html";
+  window.location.href = "index.html"; // redirect if missing
 }
 
-// Headers for authenticated requests
 const authHeaders = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${token}`,
@@ -16,20 +15,21 @@ const authHeaders = {
 let chart;
 let expenses = [];
 let filter = "all";
+let calendar;
 
-/* ========================= Quick category ========================= */
+// Quick category selection
 function selectCategory(cat) {
   document.getElementById("category").value = cat;
 }
 
-/* ========================= Add expense ========================= */
+// Add Expense
 async function addExpense() {
   const category = document.getElementById("category").value.trim();
   const amount = Number(document.getElementById("amount").value.trim());
   const note = document.getElementById("note").value.trim();
 
   if (!category || !amount) {
-    alert("Enter category and amount");
+    showToast("Enter category and amount ❌", "error");
     return;
   }
 
@@ -40,45 +40,61 @@ async function addExpense() {
       body: JSON.stringify({ category, amount, note }),
     });
 
-    const data = await res.json();
-
-    if (res.ok) {
-      // Clear inputs
-      document.getElementById("category").value = "";
-      document.getElementById("amount").value = "";
-      document.getElementById("note").value = "";
-
-      // Reload expenses
-      await loadExpenses();
-    } else {
-      alert(data.message || "Failed to add expense 😅");
+    if (!res.ok) {
+      if (res.status === 401) {
+        alert("Session expired. Please login again 😅");
+        logout();
+      } else {
+        const errData = await res.json();
+        showToast(errData.message || "Failed to add expense 😅", "error");
+      }
+      return;
     }
+
+    // Clear inputs
+    document.getElementById("category").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("note").value = "";
+
+    await loadExpenses();
+    showToast("Expense added successfully ✅", "success");
   } catch (err) {
     console.error("Add expense error:", err);
-    alert("Failed to add expense 😅");
+    showToast("Something went wrong 😅", "error");
   }
 }
 
-/* ========================= Delete expense ========================= */
+// Delete Expense
 async function deleteExpense(id) {
   try {
     const res = await fetch(`${BASE_URL}/api/expenses/${id}`, {
       method: "DELETE",
       headers: authHeaders,
     });
-    if (res.ok) loadExpenses();
+    if (!res.ok && res.status === 401) {
+      alert("Session expired. Please login again 😅");
+      logout();
+    } else {
+      await loadExpenses();
+    }
   } catch (err) {
     console.error("Delete error:", err);
   }
 }
 
-/* ========================= Load all expenses ========================= */
+// Load Expenses
 async function loadExpenses() {
   try {
-    const res = await fetch(`${BASE_URL}/api/expenses`, {
-      headers: authHeaders,
-    });
-    expenses = await res.json();
+    const res = await fetch(`${BASE_URL}/api/expenses`, { headers: authHeaders });
+    if (!res.ok) {
+      if (res.status === 401) {
+        alert("Session expired. Please login again 😅");
+        logout();
+      }
+      return;
+    }
+    const data = await res.json();
+    expenses = Array.isArray(data) ? data : [];
     displayExpenses();
     updateCalendarEvents();
   } catch (err) {
@@ -86,20 +102,18 @@ async function loadExpenses() {
   }
 }
 
-/* ========================= Display expenses ========================= */
+// Display Expenses
 function displayExpenses(expArr = expenses) {
+  if (!Array.isArray(expArr)) expArr = [];
   const table = document.getElementById("expenseTable");
   table.innerHTML = "";
 
   let categoryTotals = {};
   let now = new Date();
-  let today = 0,
-    week = 0,
-    month = 0;
+  let today = 0, week = 0, month = 0;
 
-  expArr.forEach((exp) => {
+  expArr.forEach(exp => {
     const d = new Date(exp.date);
-
     if (filter === "today" && d.toDateString() !== now.toDateString()) return;
     if (filter === "week" && now - d > 7 * 86400000) return;
     if (filter === "month" && d.getMonth() !== now.getMonth()) return;
@@ -110,8 +124,7 @@ function displayExpenses(expArr = expenses) {
                      <td><button onclick="deleteExpense('${exp._id}')">❌</button></td>`;
     table.appendChild(row);
 
-    categoryTotals[exp.category] =
-      (categoryTotals[exp.category] || 0) + Number(exp.amount);
+    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + Number(exp.amount);
 
     if (d.toDateString() === now.toDateString()) today += Number(exp.amount);
     if (now - d < 7 * 86400000) week += Number(exp.amount);
@@ -126,21 +139,20 @@ function displayExpenses(expArr = expenses) {
   updateBudget(month);
 }
 
-/* ========================= Filter expenses ========================= */
+// Filter Expenses
 function filterExpenses() {
   const text = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = expenses.filter((e) =>
-    e.category.toLowerCase().includes(text)
-  );
+  const filtered = expenses.filter(e => e.category.toLowerCase().includes(text));
   displayExpenses(filtered);
 }
 
+// Set Filter
 function setFilter(f) {
   filter = f;
   displayExpenses();
 }
 
-/* ========================= Chart ========================= */
+// Chart
 function updateChart(data) {
   const ctx = document.getElementById("expenseChart");
   if (chart) chart.destroy();
@@ -148,14 +160,14 @@ function updateChart(data) {
     type: "pie",
     data: {
       labels: Object.keys(data),
-      datasets: [{ data: Object.values(data) }],
-    },
+      datasets: [{ data: Object.values(data) }]
+    }
   });
 }
 
-/* ========================= Budget ========================= */
+// Budget
 function setBudget() {
-  const budget = document.getElementById("budgetInput").value;
+  const budget = Number(document.getElementById("budgetInput").value);
   localStorage.setItem("budget", budget);
   updateBudget(0);
 }
@@ -164,12 +176,10 @@ function updateBudget(monthSpent) {
   const budget = Number(localStorage.getItem("budget"));
   if (!budget) return;
   const remaining = budget - monthSpent;
-  const status = document.getElementById("budgetStatus");
-  status.innerHTML =
-    remaining < 0 ? "⚠ Budget exceeded!" : "Remaining ₹" + remaining;
+  document.getElementById("budgetStatus").innerText = remaining < 0 ? "⚠ Budget exceeded!" : "Remaining ₹" + remaining;
 }
 
-/* ========================= PDF Report ========================= */
+// PDF Report
 async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -179,7 +189,7 @@ async function downloadPDF() {
   doc.setFontSize(12);
 
   let y = 40;
-  expenses.forEach((exp) => {
+  expenses.forEach(exp => {
     doc.text(`${exp.category} - ₹${exp.amount}`, 20, y);
     y += 10;
   });
@@ -187,43 +197,48 @@ async function downloadPDF() {
   doc.save("expenses.pdf");
 }
 
-/* ========================= Logout ========================= */
+// Logout
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "index.html";
 }
 
-/* ========================= Calendar ========================= */
-let calendar;
+// Calendar
 function loadCalendar() {
   const calendarEl = document.getElementById("calendar");
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
-    height: 500,
+    height: 500
   });
   calendar.render();
 }
 
 function updateCalendarEvents() {
   if (!calendar) return;
-
   const dailyTotals = {};
-  expenses.forEach((exp) => {
+  expenses.forEach(exp => {
     const date = exp.date.split("T")[0];
     dailyTotals[date] = (dailyTotals[date] || 0) + Number(exp.amount);
   });
 
-  const events = Object.keys(dailyTotals).map((date) => ({
+  const events = Object.keys(dailyTotals).map(date => ({
     title: "₹" + dailyTotals[date],
-    start: date,
+    start: date
   }));
 
   calendar.removeAllEvents();
   calendar.addEventSource(events);
 }
 
-/* ========================= Initialize ========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  loadExpenses();
-  loadCalendar();
-});
+// Toast
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.style.backgroundColor = type === "success" ? "#4caf50" : "#f44336";
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2500);
+}
+
+// Initialize
+loadExpenses();
+loadCalendar();
