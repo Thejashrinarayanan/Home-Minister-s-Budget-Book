@@ -32,9 +32,35 @@ router.post("/", authMiddleware, async (req,res)=>{
 router.get("/", authMiddleware, async (req,res)=>{
   try{
 
-    const expenses = await Expense.find({userId:req.user.id}).sort({date:-1});
+    const expenses = await Expense
+      .find({userId:req.user.id})
+      .sort({date:-1});
 
     res.json(expenses);
+
+  }catch(error){
+    res.status(500).json(error);
+  }
+});
+
+
+// ✏️ UPDATE EXPENSE (EDIT OPTION)
+router.put("/:id", authMiddleware, async (req,res)=>{
+  try{
+
+    const {category,amount,note} = req.body;
+
+    const updatedExpense = await Expense.findOneAndUpdate(
+      {_id:req.params.id, userId:req.user.id},
+      {category,amount,note},
+      {new:true}
+    );
+
+    if(!updatedExpense){
+      return res.status(404).json({message:"Expense not found"});
+    }
+
+    res.json(updatedExpense);
 
   }catch(error){
     res.status(500).json(error);
@@ -46,7 +72,14 @@ router.get("/", authMiddleware, async (req,res)=>{
 router.delete("/:id", authMiddleware, async (req,res)=>{
   try{
 
-    await Expense.findByIdAndDelete(req.params.id);
+    const deleted = await Expense.findOneAndDelete({
+      _id:req.params.id,
+      userId:req.user.id
+    });
+
+    if(!deleted){
+      return res.status(404).json({message:"Expense not found"});
+    }
 
     res.json({message:"Expense deleted"});
 
@@ -54,5 +87,6 @@ router.delete("/:id", authMiddleware, async (req,res)=>{
     res.status(500).json(error);
   }
 });
+
 
 module.exports = router;
